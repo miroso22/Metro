@@ -6,5 +6,5 @@
 
 [UC_17](https://drive.google.com/file/d/1WbD90fXVm6sASVkpp9QDsKyhLx78oNG4/view?usp=sharing)
 
-[UC_06]_(https://drive.google.com/file/d/1DLJzS9whNOfvzOybqFJtrXtULUBTyQ7B/view?usp=sharing)
+[UC_06](https://drive.google.com/file/d/1DLJzS9whNOfvzOybqFJtrXtULUBTyQ7B/view?usp=sharing)
 
