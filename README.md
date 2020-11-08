@@ -2,6 +2,8 @@
 
 ![](./UCM.png)
 
+![](ER%20model.png)
+
 ## **Authors**
 
  * [Узунлу Ґамзенур](https://github.com/pinhanderler)
