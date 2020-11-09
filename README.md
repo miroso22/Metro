@@ -2,7 +2,7 @@
 
 ![](./UCM.png)
 
-![](ER%20model.png)
+
 
 ## **Authors**
 
