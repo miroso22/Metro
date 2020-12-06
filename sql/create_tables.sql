@@ -1,19 +1,6 @@
 PRAGMA FOREIGN_KEYS = ON;
 
-DROP TABLE IF EXISTS advertising_contract;
-DROP TABLE IF EXISTS worker;
-DROP TABLE IF EXISTS train;
-DROP TABLE IF EXISTS advertisement;
-DROP TABLE IF EXISTS advertiser;
-DROP TABLE IF EXISTS metro_system;
-DROP TABLE IF EXISTS administrator;
-DROP TABLE IF EXISTS metro_route;
-DROP TABLE IF EXISTS complaint;
-DROP TABLE IF EXISTS metro_line;
-DROP TABLE IF EXISTS metro_station;
-DROP TABLE IF EXISTS passanger;
-
-CREATE TABLE metro_system (
+CREATE TABLE IF NOT EXISTS metro_system (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   lines_num INTEGER,
   admins_num INTEGER,
@@ -21,7 +8,7 @@ CREATE TABLE metro_system (
   monthly_budget INTEGER
 );
 
-CREATE TABLE administrator (
+CREATE TABLE IF NOT EXISTS administrator (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   complaints_num INTEGER,
   adv_contracts_num INTEGER,
@@ -30,20 +17,22 @@ CREATE TABLE administrator (
   FOREIGN KEY (metro_id) REFERENCES metro_system(id)
 );
 
-CREATE TABLE metro_route (
+CREATE TABLE IF NOT EXISTS metro_route (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   stations_num INTEGER,
   expected_time INTEGER
 );
 
-CREATE TABLE complaint (
+CREATE TABLE IF NOT EXISTS complaint (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   send_date TIME,
   char_num INTEGER,
-  was_answered BOOLEAN
+  was_answered INTEGER,
+  send_by_id INTEGER,
+  FOREIGN KEY (send_by_id) REFERENCES passanger(id)
 );
 
-CREATE TABLE metro_line (
+CREATE TABLE IF NOT EXISTS metro_line (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   stations_num INTEGER,
   trains_num INTEGER, 
@@ -52,7 +41,7 @@ CREATE TABLE metro_line (
   FOREIGN KEY (metro_id) REFERENCES metro_system(id)
 );
 
-CREATE TABLE metro_station (
+CREATE TABLE IF NOT EXISTS metro_station (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   workers_num INTEGER,
   passangers_num INTEGER,
@@ -62,7 +51,7 @@ CREATE TABLE metro_station (
   FOREIGN KEY (line_id) REFERENCES metro_line(id)
 );
 
-CREATE TABLE worker (
+CREATE TABLE IF NOT EXISTS worker (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   salary INTEGER,
   station_id INTEGER,
@@ -71,7 +60,7 @@ CREATE TABLE worker (
   FOREIGN KEY (train_id) REFERENCES train(id)
 );
 
-CREATE TABLE train (
+CREATE TABLE IF NOT EXISTS train (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   passangers_num INTEGER,
   carriage_num INTEGER,
@@ -81,7 +70,7 @@ CREATE TABLE train (
   FOREIGN KEY(curr_station_id) REFERENCES metro_station(id)
 );
 
-CREATE TABLE advertisement (
+CREATE TABLE IF NOT EXISTS advertisement (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   views INTEGER,
   advertiser_id INTEGER,
@@ -90,22 +79,22 @@ CREATE TABLE advertisement (
   FOREIGN KEY (advertiser_id) REFERENCES advertiser(id)
 );
 
-CREATE TABLE advertiser (
+CREATE TABLE IF NOT EXISTS advertiser (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   advertisement_posted INTEGER,
   contracts_num INTEGER
 );
 
-CREATE TABLE advertising_contract (
+CREATE TABLE IF NOT EXISTS advertising_contract (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   price INTEGER,
   publish_date VARCHAR,
-  was_accepted BOOLEAN,
+  was_accepted INTEGER,
   advertiser_id INTEGER,
   FOREIGN KEY (advertiser_id) REFERENCES advertiser(id)
 );
 
-CREATE TABLE passanger (
+CREATE TABLE IF NOT EXISTS passanger (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   money INTEGER,
   route_id INTEGER,
