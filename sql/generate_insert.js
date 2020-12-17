@@ -31,6 +31,8 @@ const randomInteger = (min, max) => {
   return Math.floor(rand);
 };
 
+const makeDefaultInsert = tableName => `INSERT INTO ${tableName} DEFAULT VALUES;`;
+
 const makeInsert = (tableName, valuesNameArr, valuesArr) => {
   let valuesNameString = valuesNameArr.toString();
   let insert = `INSERT INTO ${tableName}(${valuesNameString}) VALUES (`;
@@ -53,26 +55,31 @@ const randomDate = () => {
   return `${day}.${month}.${year}`;
 }
 
+const appendInsertD = tableName => {
+  const insert = makeDefaultInsert(tableName);
+  fs.appendFileSync(FILE_NAME ,`${insert}\n`);
+}
+
 const appendInsert = (tableName, valuesNameArr, valuesArr) => {
   const insert = makeInsert(tableName, valuesNameArr, valuesArr);
   fs.appendFileSync(FILE_NAME ,`${insert}\n`);
 };
 
-const adminInsert = partial(appendInsert, 'administrator', ['complaints_num', 'adv_contracts_num', 'spend_budget']);
-const lineInsert = partial(appendInsert, 'metro_line', ['stations_num', 'trains_num', 'workers_num']);
-const stationInsert = partial(appendInsert, 'metro_station', ['workers_num', 'passangers_num', 'advertisement_num', 'month_income', 'line_id']);
-const trainInsert = partial(appendInsert, 'train', ['passangers_num', 'carriage_num', 'line_id', 'curr_station_id']);
-const advertiserInsert = partial(appendInsert, 'advertiser', ['advertisement_posted', 'contracts_num']);
+const adminInsert = partial(appendInsert, 'administrator', ['spend_budget']);
+//const lineInsert = partial(appendInsert, 'metro_line', []);
+const stationInsert = partial(appendInsert, 'metro_station', ['month_income', 'line_id']);
+const trainInsert = partial(appendInsert, 'train', ['carriage_num', 'line_id', 'curr_station_id']);
+//const advertiserInsert = partial(appendInsert, 'advertiser', []);
 const advertisementInsert = partial(appendInsert, 'advertisement', ['views', 'advertiser_id', 'station_id']);
 const workerInsert = partial(appendInsert, 'worker', ['salary', 'station_id', 'train_id']);
-const routeInsert = partial(appendInsert, 'metro_route', ['stations_num', 'expected_time']);
+const routeInsert = partial(appendInsert, 'metro_route', ['expected_time']);
 const passangerInsert = partial(appendInsert, 'passanger', ['money', 'route_id', 'station_id', 'train_id']);
 const contractInsert = partial(appendInsert, 'advertising_contract', ['price', 'publish_date', 'was_accepted', 'advertiser_id']);
 const complaintInsert = partial(appendInsert, 'complaint', ['send_date', 'char_num', 'was_answered', 'send_by_id']);
 
 fs.writeFileSync(FILE_NAME, '');
 
-appendInsert('metro_system', ['lines_num', 'admins_num', 'city_name', 'monthly_budget'], [METRO_LINES, ADMINS_NUM, 'Kyiv', 5]);
+appendInsert('metro_system', ['city_name', 'monthly_budget'], ['Kyiv', 5]);
 
 let totalStations = 0;
 let totalPassangers = 0;
@@ -82,7 +89,7 @@ for (let i = 1; i <= METRO_LINES; i++) {
   totalStations += stations_num;
   let totalWorkers = 0;
   let totalTrains = 0;
-  lineInsert([stations_num, totalTrains, totalWorkers]);
+  appendInsertD('metro_line');
   for (let j = 1; j <= stations_num; j++) {
     const workers = randomInteger(...STATION_WORKERS_LIMITS);
     const trains = randomInteger(...TRAIN_LIMITS);
@@ -90,10 +97,10 @@ for (let i = 1; i <= METRO_LINES; i++) {
     const income = randomInteger(...INCOME_LIMITS);
     totalWorkers += workers;
     totalTrains += trains;
-    stationInsert([workers, passangers, 0, income, i]); // потом исправить 0 на генератор (когда появится реклама)
+    stationInsert([income, i]);
     for (let k = 1; k <= trains; k++) {
       const carriage_num = randomInteger(...CARIAGE_LIMITS);
-      trainInsert([randomInteger(...PASSANGER_LIMITS), carriage_num, i, j]);
+      trainInsert([carriage_num, i, j]);
     }
     for (let k = 1; k <= workers; k++) {
       const salary = randomInteger(...SALARY_LIMITS);
@@ -102,7 +109,7 @@ for (let i = 1; i <= METRO_LINES; i++) {
     let route_id = 0;
     for (let k = 1; k <= passangers; k++) {
       const money = randomInteger(...MONEY_LIMITS);
-      routeInsert([randomInteger(1, stations_num), randomInteger(...EXPECTED_TIME)]);
+      routeInsert([randomInteger(...EXPECTED_TIME)]);
       route_id++;
       passangerInsert([money, route_id, j, randomInteger(1, trains)]);
       totalPassangers++;
@@ -115,7 +122,7 @@ const advertisers = randomInteger(...ADVERTISERS_LIMITS);
 for (let i = 1; i <= advertisers; i++) {
   const contracts = randomInteger(...CONTRACTS_LIMITS);
   const advertisements = randomInteger(...ADVERTISEMENT_LIMITS);
-  advertiserInsert([advertisements, contracts]);
+  appendInsertD('advertiser');
 
   for (let j = 1; j <= contracts; j++) {
     const price = randomInteger(...PRICE_LIMITS);
@@ -134,7 +141,7 @@ for (let i = 1; i <= ADMINS_NUM; i++) {
   const complaints_num = randomInteger(...COMPLAINTS_LIMITS);
   const contracts = randomInteger(...CONTRACTS_LIMITS);
   const budget = randomInteger(...BUDGET_LIMITS);
-  adminInsert([complaints_num, contracts, budget]);
+  adminInsert([budget]);
   for (let j = 1; j <= complaints_num; j++) {
     const date = randomDate();
     const char_num = randomInteger(...CHAR_NUM_LIMITS);

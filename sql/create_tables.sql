@@ -2,16 +2,12 @@ PRAGMA FOREIGN_KEYS = ON;
 
 CREATE TABLE IF NOT EXISTS metro_system (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  lines_num INTEGER,
-  admins_num INTEGER,
   city_name VARCHAR,
   monthly_budget INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS administrator (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  complaints_num INTEGER,
-  adv_contracts_num INTEGER,
   spend_budget INTEGER,
   metro_id INTEGER DEFAULT 1,
   FOREIGN KEY (metro_id) REFERENCES metro_system(id)
@@ -19,7 +15,6 @@ CREATE TABLE IF NOT EXISTS administrator (
 
 CREATE TABLE IF NOT EXISTS metro_route (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  stations_num INTEGER,
   expected_time INTEGER
 );
 
@@ -34,18 +29,12 @@ CREATE TABLE IF NOT EXISTS complaint (
 
 CREATE TABLE IF NOT EXISTS metro_line (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  stations_num INTEGER,
-  trains_num INTEGER, 
-  workers_num INTEGER,
   metro_id INTEGER DEFAULT 1,
   FOREIGN KEY (metro_id) REFERENCES metro_system(id)
 );
 
 CREATE TABLE IF NOT EXISTS metro_station (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  workers_num INTEGER,
-  passangers_num INTEGER,
-  advertisement_num INTEGER,
   month_income INTEGER,
   line_id INTEGER,
   FOREIGN KEY (line_id) REFERENCES metro_line(id)
@@ -62,7 +51,6 @@ CREATE TABLE IF NOT EXISTS worker (
 
 CREATE TABLE IF NOT EXISTS train (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  passangers_num INTEGER,
   carriage_num INTEGER,
   line_id INTEGER,
   curr_station_id,
@@ -80,9 +68,7 @@ CREATE TABLE IF NOT EXISTS advertisement (
 );
 
 CREATE TABLE IF NOT EXISTS advertiser (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  advertisement_posted INTEGER,
-  contracts_num INTEGER
+  id INTEGER PRIMARY KEY AUTOINCREMENT
 );
 
 CREATE TABLE IF NOT EXISTS advertising_contract (
