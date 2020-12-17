@@ -3,8 +3,8 @@
 const sqlite = require('better-sqlite3')
 let db = new sqlite('../sql/metro.db')
 
-//const Worker = require('./Worker.js').Worker
-//const Advertisement = require('./Advertisement').Advertisement
+const Worker = require('./Worker.js').Worker
+const Advertisement = require('./Advertisement').Advertisement
 //const Train = require('./Train.js').Train
 //const Passenger = require('./Passenger.js').Passenger
 //const Line = require('./Line.js').Line
