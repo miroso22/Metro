@@ -4,7 +4,7 @@ const sqlite = require('better-sqlite3')
 let db = new sqlite('../sql/metro.db')
 
 const Station = require('./Station.js').Station
-//const Train = require('./Train.js').Train
+const Train = require('./Train.js').Train
 
 class Worker
 {
