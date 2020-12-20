@@ -1,6 +1,8 @@
 'use strict'
 
 const db = require('./connector.js').db
+const cache = require('./cache.js').cache
+
 const Advertisement = require('./Advertisement.js').Advertisement
 const Advertiser = require('./Advertiser.js').Advertiser
 
@@ -19,15 +21,22 @@ class Contract
 
         Object.defineProperty(this, "advertisements", {
             get: function() {
-                const res = db.prepare('SELECT id FROM advertisement WHERE contract_id=?').all(this.name)
-                res.forEach((v, i, arr) => arr[i] = new Advertisement(arr[i].id))
+                const ids = db.prepare('SELECT id FROM advertisement WHERE contract_id=?').all(this.name)
+                const res = []
+                ids.forEach(v => res.push(cache.advertisements.has(v.id) ?
+                                            cache.advertisements.get(v.id) :
+                                            new Advertisement(v.id)))
                 return res
             }
         })
         Object.defineProperty(this, "advertiser", {
             get: function() {
-                return new Advertiser(advertiserId)
+                return cache.advertisers.has(advertiserId) ?
+                            cache.advertisers.get(advertiserId) :
+                            new Advertiser(advertiserId)
             }
         })
+
+        cache.contracts.set(this.name, this)
     }
 }

@@ -1,6 +1,8 @@
 'use strict'
 
 const db = require('./connector.js').db
+const cache = require('./cache.js').cache
+
 const Complaint = require('./Complaint.js').Complaint
 const Contract = require('./Contract.js').Contract
 const Metro = require('./Metro.js').Metro
@@ -16,24 +18,39 @@ class Administrator
 
         Object.defineProperty(this, "metroSystem", {
             get: function() {
-                return new Metro(metroSystemId)
+                return cache.metroSystems.has(metroSystemId)?
+                    cache.metroSystems.get(metroSystemId) :
+                    new Metro(metroSystemId)
             }
         })
+
+        cache.administrators.set(this,name, this)
     }
 
     getAllComplaints = () => {
-        const res = db.prepare('SELECT id FROM complaint').all(this.name)
-        res.forEach((v, i, arr) => arr[i] = new Complaint(arr[i].id))
+        const ids = db.prepare('SELECT id FROM complaint').all(this.name)
+        const res = []
+        ids.forEach(v => res.push(cache.complaints.has(v.id) ?
+                        cache.complaints.get(v.id) :
+                        new Complaint(arr[i].id)))
         return res
     }
     getUnansweredComplaints = () => {
-        const res = db.prepare('SELECT id FROM complaint WHERE was_answered = 0').all()
-        res.forEach((v, i, arr) => arr[i] = new Complaint(arr[i].id))
+        const ids = db.prepare('SELECT id FROM complaint WHERE was_answered = 0').all()
+        const res = []
+        ids.forEach(v => res.push(cache.complaints.has(v.id) ?
+                        cache.complaints.get(v.id) :
+                        new Complaint(v.id)))
         return res
     }
     getAllContracts = () => {
-        const res = db.prepare('SELECT * FROM advertising_contract').all()
-        res.forEach((v, i, arr) => arr[i] = new Contract(arr[i].id))
+        const ids = db.prepare('SELECT id FROM advertising_contract').all()
+        const res = []
+        ids.forEach(v => res.push(cache.contracts.has(v.id) ?
+                        cache.contracts.get(v.id) :
+                        new Contract(v.id)))
         return res
     }
+
+    cache.administrators.set(this.name, this)
 }

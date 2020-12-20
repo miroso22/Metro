@@ -1,6 +1,7 @@
 'use strict'
 
 const db = require('./connector.js').db
+const cache = require('./cache.js').cache
 class Complaint
 {
     constructor(name)
@@ -15,8 +16,12 @@ class Complaint
 
         Object.defineProperty(this, "sender", {
             get: function() {
-                return new Passenger(senderId)
+                return cache.passengers.has(senderId) ?
+                            cache.passengers.get(senderId) :
+                            new Passenger(senderId)
             }
         })
+
+        cache.complaints.set(this.name, this)
     }
 }

@@ -1,6 +1,8 @@
 'use strict'
 
 const db = require('./connector.js').db
+const cache = require('./cache.js').cache
+
 const Worker = require('./Worker.js').Worker
 const Station = require('./Station.js').Station
 const Passenger = require('./Passenger.js').Passenger
@@ -20,21 +22,25 @@ class Train
 
         Object.defineProperty(this, "passengers", {
             get: function() {
-                const res = db.prepare('SELECT id FROM passangers WHERE train_id=?').all(this.name)
-                res.forEach((v, i, arr) => arr[i] = new Passenger(arr[i].id))
+                const ids = db.prepare('SELECT id FROM passangers WHERE train_id=?').all(this.name)
+                const res = []
+                ids.forEach(v => res.push(cache.passengers.has(v.id) ?
+                                            cache.passengers.get(v.id) :
+                                            new Passenger(v.id))
                 return res
             }
         })
         Object.defineProperty(this, "line", {
             get: function() {
-                return new Line(lineId)
+                return cache.lines.has(lineId) ? cache.lines.get(lineId) : new Line(lineId)
             }
         })
         Object.defineProperty(this, "worker", {
             get: function() {
-                 return new Worker(workerId)
+                 return cache.workers.has(workerId) ? cache.workers.get(workerId) : new Worker(workerId)
             }
         })
+        cache.trains.set(this.name, this)
     }
 
     isOnStation = () => this.stationId > -1

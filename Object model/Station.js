@@ -1,6 +1,8 @@
 'use strict'
 
 const db = require('./connector.js').db
+const cache = require('./cache.js').cache
+
 const Worker = require('./Worker.js').Worker
 const Advertisement = require('./Advertisement').Advertisement
 const Train = require('./Train.js').Train
@@ -22,36 +24,44 @@ class Station
 
         Object.defineProperty(this, "workers", {
             get: function() {
-                const res = db.prepare('SELECT id FROM worker WHERE station_id=?').all(this.name)
-                res.forEach((v, i, arr) => arr[i] = new Worker(arr[i].id))
+                const ids = db.prepare('SELECT id FROM worker WHERE station_id=?').all(this.name)
+                const res = []
+                ids.forEach(v =>
+                    res.push(cache.workers.has(v.id) ? cache.workers.get(v.id) : new Worker(v.id))
                 return res
             }
         })
         Object.defineProperty(this, "passengers", {
             get: function() {
-                const res = db.prepare('SELECT id FROM passangers WHERE station_id=?').all(this.name)
-                res.forEach((v, i, arr) => arr[i] = new Passenger(arr[i].id))
+                const ids = db.prepare('SELECT id FROM passangers WHERE station_id=?').all(this.name)
+                const res = []
+                ids.forEach(v =>
+                    res.push(cache.passengers.has(v.id) ? cache.passengers.get(v.id) new Passenger(v.id))
                 return res
             }
         })
         Object.defineProperty(this, "advertisements", {
             get: function() {
-                const res = db.prepare('SELECT id FROM advertisement WHERE station_id=?').all(this.name)
-                res.forEach((v, i, arr) => arr[i] = new Advertisement(arr[i].id))
+                const ids = db.prepare('SELECT id FROM advertisement WHERE station_id=?').all(this.name)
+                const res = []
+                ids.forEach(v =>
+                    res.push(cache.advertisements.has(v.id) ? cache.advertisements.get(v.id) : new Advertisement(v.id))
                 return res
             }
         })
         Object.defineProperty(this, "train", {
             get: function() {
                 const res = db.prepare('SELECT id FROM train WHERE station_id=?').get(this.name)
-                return new Train(res.id)
+                return cache.trains.has(trainId) ? cache.trains.get(trainId) : new Train(res.id)
             }
         })
         Object.defineProperty(this, "line", {
             get: function() {
-                return new Line(lineId)
+                return cache.lines.has(lineId) ? cache.lines.get(lineId) : new Line(lineId)
             }
         })
+
+        cache.stations.set(this.name, this)
     }
 
     getWorkersNum = () => db.prepare('SELECT COUNT(*) FROM worker WHERE station_id=?').get(this.name)

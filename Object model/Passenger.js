@@ -1,6 +1,8 @@
 'use strict'
 
 const db = require('./connector.js').db
+const cache = require('./cache.js').cache
+
 const Station = require('./Station.js').Station
 const Complaint = require('./Complaint.js').Complaint
 const Train = require('./Train.js').Train
@@ -18,8 +20,11 @@ class Passenger
 
         Object.defineProperty(this, "complaints", {
             get: function() {
-                const res = db.prepare('SELECT id FROM complaint WHERE send_by_id=?').all(this.name)
-                res.forEach((v, i, arr) => arr[i] = new Complaint(arr[i].id))
+                const ids = db.prepare('SELECT id FROM complaint WHERE send_by_id=?').all(this.name)
+                const res = []
+                ids.forEach((v => res.push(cache.complaints.has(v.id) ?
+                                    cache.complaints.get(v.id) :
+                                    new Complaint(v.id)))
                 return res
             }
         })
@@ -27,7 +32,11 @@ class Passenger
 
     isOnStation = () => this.stationId > -1
     isOnTrain = () => this.trainId > -1
-    getStation = () => isOnStation() ? new Station(stationId) : null
-    getTrain = () => isOnTrain() ? new Train(trainId) : null
-    getCopmlaintsCount = () => this.complaints.length
+    getStation = () => isOnStation() ?
+                        cache.stations.has(stationId) ? cache.stations.get(stationId) : new Station(stationId) :
+                        null
+    getTrain = () => isOnTrain() ?
+                        cache.trains.has(trainId) ? cache.trains.get(trainId) : new Train(trainId) :
+                        null
+    getComplaintsCount = () => this.complaints.length
 }
