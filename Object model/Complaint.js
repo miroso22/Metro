@@ -1,10 +1,6 @@
 'use strict'
 
-const sqlite = require('better-sqlite3')
-let db = new sqlite('../sql/metro.db')
-
-const Passenger = require('./Passenger.js').Passenger
-
+const db = require('./connector.js').db
 class Complaint
 {
     constructor(name)

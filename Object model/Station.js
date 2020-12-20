@@ -1,8 +1,6 @@
 'use strict'
 
-const sqlite = require('better-sqlite3')
-let db = new sqlite('../sql/metro.db')
-
+const db = require('./connector.js').db
 const Worker = require('./Worker.js').Worker
 const Advertisement = require('./Advertisement').Advertisement
 const Train = require('./Train.js').Train
@@ -16,10 +14,11 @@ class Station
         this.name = name
         let data = db.prepare('SELECT * FROM metro_station WHERE id=?').get(name)
 
-        this.monthIncome = data.monthIncome                     //
-        this.hasTrain = this.getTrainsNum() > 0                 // Attributes
-        this.maxPassengerCapacity = data.maxPassengerCapacity   //
-        this.lineId = data.line_id                              //
+        this.monthIncome = data.monthIncome
+        this.hasTrain = this.getTrainsNum() > 0
+        this.maxPassengerCapacity = data.maxPassengerCapacity
+        this.lineId = data.line_id
+        this.routeId = data.route_id
 
         Object.defineProperty(this, "workers", {
             get: function() {

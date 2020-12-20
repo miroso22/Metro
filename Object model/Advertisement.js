@@ -1,8 +1,6 @@
 'use strict'
 
-const sqlite = require('better-sqlite3')
-let db = new sqlite('../sql/metro.db')
-
+const db = require('./connector.js').db
 const Contract = require('./Contract.js').Contract
 const Station = require('./Station.js').Station
 
