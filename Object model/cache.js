@@ -12,3 +12,13 @@ const cache = {
     trains = new Map()
     workers = new Map()
 }
+function update() {
+    for (const data of cache) {
+        const iterator = map[Symbol.iterator]()
+        for (let item of iterator) {
+            item = Object.create(item, item.name)
+        }
+    }
+}
+
+setTimeOut(update, 60000)
