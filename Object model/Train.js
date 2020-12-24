@@ -42,6 +42,19 @@ class Train
         })
         cache.trains.set(this.name, this)
     }
+    deleteThis = () => db.prepare('DELETE FROM train WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM train WHERE id=?').run(name)
+    updateThis = () =>
+       db.prepare('UPDATE train SET max_capacity=?, station_id=?, worker_id=?, line_id=? WHERE id=?')
+         .run(this.maxCapacity, this.stationId, this.workerId, this.lineId, this.name)
+    static create = (name, maxCapacity, stationId, workerId, lineId) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO train(id, max_capacity, station_id, worker_id, line_id) VALUES(?, ?, ?, ?, ?)')
+              .run(name, maxCapacity, stationId, workerId, lineId)
+    static checkExist = name => db.prepare('SELECT * FROM train WHERE id=?').get(name) != undefined
+
 
     isOnStation = () => this.stationId > -1
     getStation = () => isOnStation() ? new Station(stationId) : null

@@ -39,4 +39,16 @@ class Contract
 
         cache.contracts.set(this.name, this)
     }
+    deleteThis = () => db.prepare('DELETE FROM advertising_contract WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM advertising_contract WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE advertising_contract SET publish_date=?, expire_date=?, price=?, was_accepted=?, advertiserId=? WHERE id=?')
+          .run(this.publishDate, this.expireDate, this.price, this.wasAccepted, this.advertiserId, this.name)
+    static create = (name, publishDate, expireDate, price, wasAccepted, advertiserId) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO advertising_contract(id, publish_date, expire_date, price, was_accepted, advertiserId) VALUES(?, ?, ?, ?, ?, ?)')
+              .run(name, publishDate, expireDate, price, wasAccepted, advertiserId)
+    static checkExist = name => db.prepare('SELECT * FROM advertising_contract WHERE id=?').get(name) != undefined
 }

@@ -36,4 +36,17 @@ class Metro
         })
         cache.metroSystems.set(this.name, this)
     }
+
+    deleteThis = () => db.prepare('DELETE FROM metro_system WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM metro_system WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE metro_system SET location=?, month_budget=? WHERE id=?')
+          .run(this.location, this.monthBudget, this.name)
+    static create = (name, location, monthBudget) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO metro_system(id, location, month_budget) VALUES(?, ?, ?)')
+              .run(name, location, monthBudget)
+    static checkExist = name => db.prepare('SELECT * FROM metro_system WHERE id=?').get(name) != undefined
 }

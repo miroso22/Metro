@@ -35,4 +35,16 @@ class Worker
         })
         cache.workers.set(this.name, this)
     }
+    deleteThis = () => db.prepare('DELETE FROM worker WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM worker WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE worker SET salary=?, station_id=?, train_id=? WHERE id=?')
+          .run(this.expectedTime, this.salary, this.stationId, this.trainId)
+    static create = (name, salary, stationId, trainId) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO worker(id, salary, station_id, train_id) VALUES(?, ?)')
+              .run(name, salary, stationId, trainId)
+    static checkExist = name => db.prepare('SELECT * FROM worker WHERE id=?').get(name) != undefined
 }

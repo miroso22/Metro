@@ -36,6 +36,18 @@ class Line
 
         cache.lines.set(this.name, this)
     }
+    deleteThis = () => db.prepare('DELETE FROM metro_line WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM metro_line WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE metro_line SET metro_id=? WHERE id=?')
+          .run(this.metroId, this.name)
+    static create = (name, metroId) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO metro_line(id, metro_id) VALUES(?, ?)')
+              .run(name, metroId)
+    static checkExist = name => db.prepare('SELECT * FROM metro_line WHERE id=?').get(name) != undefined
 
     getTrainsAmount = () => this.trains.length
     getStationsAmount = () => this.stations.length

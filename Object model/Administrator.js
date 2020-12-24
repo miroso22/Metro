@@ -27,6 +27,19 @@ class Administrator
         cache.administrators.set(this,name, this)
     }
 
+    deleteThis = () => db.prepare('DELETE FROM administrator WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM administrator WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE administrator SET metro_id=? WHERE id=?')
+          .run(this.metroSystemId, this.name)
+    static create = (name, metroSystemId) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO administrator(id, metro_id) VALUES(?, ?)')
+              .run(name, metroSystemId)
+    static checkExist = name => db.prepare('SELECT * FROM administrator WHERE id=?').get(name) != undefined
+
     getAllComplaints = () => {
         const ids = db.prepare('SELECT id FROM complaint').all(this.name)
         const res = []

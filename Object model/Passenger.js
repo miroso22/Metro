@@ -28,7 +28,21 @@ class Passenger
                 return res
             }
         })
+        cache.passengers.set(this.name, this)
     }
+
+    deleteThis = () => db.prepare('DELETE FROM passanger WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM passanger WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE passanger SET money=?, station_id=?, train_id=? WHERE id=?')
+          .run(this.cash, this.stationId, this.trainId, this.name)
+    static create = (name, cash, stationId, trainId) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO passanger(id,money,station_id,train_id) VALUES(?, ?, ?, ?)')
+              .run(name, cash, stationId, trainId)
+    static checkExist = name => db.prepare('SELECT * FROM passanger WHERE id=?').get(name) != undefined
 
     isOnStation = () => this.stationId > -1
     isOnTrain = () => this.trainId > -1

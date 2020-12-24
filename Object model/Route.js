@@ -4,7 +4,7 @@ const db = require('./connector.js').db
 const cache = require('./cache.js').cache
 const Station = require('./Station.js').Station
 
-class Metro
+class Route
 {
     constructor(name)
     {
@@ -12,7 +12,6 @@ class Metro
         let data = db.prepare('SELECT * FROM metro_route WHERE id=?').get(name)
 
         this.expectedTime = data.expected_time
-        this.monthBudget = data.monthly_budget
 
         Object.defineProperty(this, "stations", {
             get: function() {
@@ -24,4 +23,16 @@ class Metro
         })
         cache.routes.set(this.name, this)
     }
+    deleteThis = () => db.prepare('DELETE FROM metro_route WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM metro_route WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE metro_route SET expected_time=? WHERE id=?')
+          .run(this.expectedTime, this.name)
+    static create = (name, expectedTime) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO metro_route(id, expected_time) VALUES(?, ?)')
+              .run(name, expectedTime)
+    static checkExist = name => db.prepare('SELECT * FROM metro_route WHERE id=?').get(name) != undefined
 }

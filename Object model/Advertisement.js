@@ -31,9 +31,22 @@ class Advertisement
                     new Contract(contractId)
             }
         })
-
         cache.advertisements.set(this.name, this)
     }
+
+    deleteThis = () => db.prepare('DELETE FROM advertisement WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM advertisement WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE advertisement SET content=?, station_id=?, contract_id=? WHERE id=?')
+          .run(this.content, this.stationId, this.contractId, this.name)
+    static create = (name, content, stationId, contractId) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO advertisement(id,content,station_id,contract_id) VALUES(?, ?, ?, ?)')
+              .run(name, content, stationId, contractId)
+    static checkExist = name => db.prepare('SELECT * FROM advertisement WHERE id=?').get(name) != undefined
+
     getPeopleSeeing = () => return this.station.getPassengersNum()
     getAdvertiser = () => return this.contract.advertiser
 }

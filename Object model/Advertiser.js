@@ -11,6 +11,7 @@ class Advertiser
     {
         this.name = name
         let data = db.prepare('SELECT * FROM advertiser WHERE id=?').get(name)
+        this.personalInfo = data.personalInfo
 
         Object.defineProperty(this, "contracts", {
             get: function() {
@@ -25,6 +26,19 @@ class Advertiser
 
         cache.advertisers.set(this.name, this)
     }
+
+    deleteThis = () => db.prepare('DELETE FROM advertiser WHERE id=?').run(this.name)
+    static delete = (name) => db.prepare('DELETE FROM advertiser WHERE id=?').run(name)
+    updateThis = () =>
+        db.prepare('UPDATE advertiser SET content=?, station_id=?, contract_id=? WHERE id=?')
+          .run(this.content, this.stationId, this.contractId, this.name)
+    static create = (name, personalInfo) =>
+        if (checkExist(name))
+            throw new Error('Already exists!')
+        else
+            db.prepare('INSERT INTO advertiser(id,personal_info) VALUES(?, ?)')
+              .run(name, personalInfo)
+    static checkExist = name => db.prepare('SELECT * FROM advertiser WHERE id=?').get(name) != undefined
 
     getAdvertisements = () => {
         let res = []
